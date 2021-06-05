@@ -30,14 +30,15 @@ const fetchMyIP = function(callback) {
 
     if (response.statusCode === 200) {
       const ip = JSON.parse(body);
-      console.log(ip);
+      //console.log(ip);
     }
   });
 };
 
+const fetchCoordsByIP = function(ip, callback) {
 
-fetchMyIP();
+};
 
 
 
-module.exports = { fetchMyIP };
+module.exports = { fetchMyIP, fetchCoordsByIP };
