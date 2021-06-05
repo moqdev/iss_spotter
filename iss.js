@@ -27,11 +27,10 @@ const fetchMyIP = function(callback) {
     }
 
     // if we get here, all's well and we got the data
-
-    if (response.statusCode === 200) {
-      const ip = JSON.parse(body);
-      //console.log(ip);
-    }
+    //We were not passing the ip to the callback.**
+    const ip = JSON.parse(body).ip;
+    callback(null, ip);
+    
   });
 };
 
@@ -46,10 +45,11 @@ const fetchCoordsByIP = function(ip, callback) {
       return;
     }
 
-    const data = {};
-    data.latitude = JSON.parse(body).latitude;
-    data.longitude = JSON.parse(body).longitude;
-    callback(null, data);
+    
+    const results = JSON.parse(body);
+    console.log(results);
+    const {latitude, longitude} = results;
+    callback(null, {latitude, longitude});
   });
 };
 
@@ -65,8 +65,8 @@ const fetchCoordsByIP = function(ip, callback) {
  */
 
 const fetchISSFlyOverTimes = function(coords, callback) {
-  let apiURL = `http://api.open-notify.org/iss-pass.json?lat=${coords.latitude}&lon=${coords.longitude}`;
-
+  let apiURL = `http://api.open-notify.org/iss/v1/?lat=${coords.latitude}&lon=${coords.longitude}`;
+ 
   // console.log(apiURL);
   request(apiURL, (error, response, body) => {
     if (error) return callback(error, null);
@@ -81,8 +81,28 @@ const fetchISSFlyOverTimes = function(coords, callback) {
   });
 };
 
+const nextISSTimesForMyLocation = function(callback) {
+  fetchMyIP((error, ip) => {
+    if (error) {
+      return callback(error, null);
+    }
 
+    fetchCoordsByIP(ip, (error, loc) => {
+      if (error) {
+        return callback(error, null);
+      }
 
+      fetchISSFlyOverTimes(loc, (error, nextPasses) => {
+        if (error) {
+          return callback(error, null);
+        }
 
+        callback(null, nextPasses);
+      });
+    });
+  });
+};
 
-module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
+// Only export nextISSTimesForMyLocation and not the other three (API request) functions.
+// This is because they are not needed by external modules.
+module.exports = { nextISSTimesForMyLocation };
