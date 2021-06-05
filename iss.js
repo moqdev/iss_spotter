@@ -36,7 +36,21 @@ const fetchMyIP = function(callback) {
 };
 
 const fetchCoordsByIP = function(ip, callback) {
+  let apiURL = 'https://freegeoip.app/json/' + ip;
+ 
+  request(apiURL, (error, response, body) => {
+    if (error) return callback(error, null);
+  
+    if (response.statusCode !== 200) {
+      callback(Error(`Status Code ${response.statusCode} when fetching IP: ${body}`), null);
+      return;
+    }
 
+    const data = {};
+    data.latitude = JSON.parse(body).latitude;
+    data.longitude = JSON.parse(body).longitude;
+    callback(null, data);
+  });
 };
 
 
