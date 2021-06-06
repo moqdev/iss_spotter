@@ -45,3 +45,5 @@ nextISSTimesForMyLocation((error, passTimes) => {
 
 //   console.log('It worked! Returned coordinates: ',flyOverTimes);
 // });
+
+module.exports = {printPassTimes};
